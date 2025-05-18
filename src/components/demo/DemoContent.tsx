@@ -1,13 +1,15 @@
 'use client';
 
+import { FaceShapeRecommendation } from '@/components/demo/FaceShapeRecommendation';
 import { HairstyleSelector } from '@/components/demo/HairstyleSelector';
 import { ImagePicker } from '@/components/demo/ImagePicker';
 import { ImagePreview } from '@/components/demo/ImagePreview';
 import { LoadingState } from '@/components/demo/LoadingState';
 import { ResultView } from '@/components/demo/ResultView';
 import { useTextToImageContext } from '@/contexts/TextToImageContext';
+import { useFaceShapeDetection } from '@/hooks/useFaceShapeDetection';
 import { useImageUpload } from '@/hooks/useImageUpload';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 
 const hairstyles = [
@@ -52,7 +54,28 @@ const hairstyles = [
 export function DemoContent() {
   const { image, imagePreview, handleImageSelection, resetImage } = useImageUpload();
   const { isLoading, results, generateImage, resetResults } = useTextToImageContext();
+  const { 
+    faceShape, 
+    recommendedHairstyles,
+    detectFace, 
+    isLoading: isAnalyzing, 
+    error: faceShapeError 
+  } = useFaceShapeDetection();
+  
   const [selectedHairstyle, setSelectedHairstyle] = useState<number>(-1);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Client-side only effect
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Analyze face shape when an image is uploaded
+  useEffect(() => {
+    if (isMounted && imagePreview) {
+      detectFace(imagePreview);
+    }
+  }, [imagePreview, detectFace, isMounted]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,6 +90,13 @@ export function DemoContent() {
 
   const handleReset = () => {
     resetResults();
+  };
+
+  const handleSelectRecommended = (hairstyleIds: number[]) => {
+    if (hairstyleIds.length > 0) {
+      // Select the first recommended hairstyle initially
+      setSelectedHairstyle(hairstyleIds[0]);
+    }
   };
 
   return (
@@ -97,12 +127,25 @@ export function DemoContent() {
                     ) : (
                       <ImagePicker onImageSelected={handleImageSelection} />
                     )}
+                    
+                    {isMounted && imagePreview && (
+                      <FaceShapeRecommendation
+                        faceShape={faceShape}
+                        recommendedHairstyleIds={recommendedHairstyles}
+                        isLoading={isAnalyzing}
+                        error={faceShapeError}
+                        onSelectRecommended={handleSelectRecommended}
+                      />
+                    )}
                   </div>
                   <div className="flex w-full flex-1 flex-col gap-4 border-[#E4E5E6] px-6 md:w-auto md:border-l md:px-12">
                     <p className="text-center text-xs font-medium text-[#0C0C0C] uppercase">
                       Select hairstyle
                     </p>
-                    <HairstyleSelector onSelect={setSelectedHairstyle} />
+                    <HairstyleSelector 
+                      onSelect={setSelectedHairstyle} 
+                      recommendedIds={recommendedHairstyles}
+                    />
                   </div>
                 </div>
 

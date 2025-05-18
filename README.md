@@ -5,8 +5,15 @@
 This application demonstrates how to integrate with the Runway API to generate hair makeovers based on a user-uploaded selfie and a selected hairstyle.
 
 - Upload a selfie.
+- Get hairstyle recommendations based on face shape.
 - Select a hairstyle.
 - Click "Generate".
+
+## Features
+
+- Face shape detection and analysis
+- Personalized hairstyle recommendations
+- AI-powered hair makeover generation
 
 ## Getting Started
 
@@ -47,6 +54,14 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## How It Works
+
+1. **Upload Selfie**: Upload a clear front-facing photo.
+2. **Face Shape Analysis**: The app analyzes your face shape using AI.
+3. **Get Recommendations**: Receive personalized hairstyle recommendations based on your face shape.
+4. **Select Hairstyle**: Choose a hairstyle (recommended ones are highlighted).
+5. **Generate Makeover**: The app uses Runway's API to create your hair makeover.
 
 ## Learn More
 
